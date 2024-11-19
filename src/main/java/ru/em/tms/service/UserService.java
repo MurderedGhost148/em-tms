@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,6 +64,9 @@ public class UserService {
     }
 
     public void delete(Integer id) {
+        if(getCurrentUser().getId().equals(id))
+            throw new AccessDeniedException("Нельзя удалить текущий аккаунт");
+
         repo.deleteById(id);
     }
 

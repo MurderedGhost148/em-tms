@@ -1,5 +1,6 @@
 package ru.em.tms.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -9,8 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.em.tms.model.RestError;
+import ru.em.tms.model.dto.RestError;
 
+@Hidden
 @RestControllerAdvice
 public class BaseControllerAdvice {
     @ExceptionHandler(BindException.class)
