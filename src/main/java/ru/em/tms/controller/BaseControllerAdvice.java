@@ -1,8 +1,9 @@
 package ru.em.tms.controller;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,6 +25,13 @@ public class BaseControllerAdvice {
     @ResponseBody
     public RestError notFound(EntityNotFoundException ex) {
         return new RestError(ex.getMessage());
+    }
+
+    @ExceptionHandler({AuthorizationDeniedException.class, AccessDeniedException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public RestError forbidden() {
+        return new RestError("Отказано в доступе");
     }
 
     @ExceptionHandler(Exception.class)

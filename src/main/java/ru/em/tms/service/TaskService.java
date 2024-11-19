@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.em.tms.lib.filter.TaskFilter;
+import ru.em.tms.lib.filter.db.TaskFilter;
 import ru.em.tms.lib.mapper.TaskMapper;
 import ru.em.tms.lib.specification.TaskSpecifications;
 import ru.em.tms.model.db.Task;

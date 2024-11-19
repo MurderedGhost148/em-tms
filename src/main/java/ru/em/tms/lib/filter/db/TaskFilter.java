@@ -1,4 +1,4 @@
-package ru.em.tms.lib.filter;
+package ru.em.tms.lib.filter.db;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Value;

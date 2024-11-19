@@ -4,6 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.em.tms.lib.mapper.UserMapper;
@@ -61,5 +64,21 @@ public class UserService {
 
     public void delete(Integer id) {
         repo.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public User getByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+    }
+
+    public UserDetailsService userDetailsService() {
+        return this::getByEmail;
+    }
+
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        var username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return getByEmail(username);
     }
 }
