@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.em.tms.lib.annotation.PageableDoc;
@@ -23,6 +24,7 @@ import ru.em.tms.service.UserService;
 
 @RestController
 @RequestMapping(path = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@PreAuthorize("hasAuthority('ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Пользователи")
 public class UserController {
@@ -45,7 +47,7 @@ public class UserController {
         return service.getById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
 
-    @PostMapping
+    /*@PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Добавить нового пользователя",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -56,7 +58,7 @@ public class UserController {
     )
     public UserGetDTO create(@RequestBody @Validated UserEditDTO userDTO) {
         return service.create(userDTO);
-    }
+    }*/
 
     @PutMapping(path = "/{id}")
     @Operation(summary = "Изменить пользователя",

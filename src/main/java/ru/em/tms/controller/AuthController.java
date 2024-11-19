@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import ru.em.tms.model.RestError;
+import ru.em.tms.model.dto.JwtDTO;
 import ru.em.tms.model.dto.user.UserAuthDTO;
 import ru.em.tms.service.AuthService;
 
@@ -23,15 +24,15 @@ public class AuthController {
     @Operation(summary = "Регистрация пользователя")
     @SecurityRequirements
     @PostMapping("/register")
-    public String signUp(@RequestBody @Valid UserAuthDTO request) {
-        return service.signUp(request);
+    public JwtDTO signUp(@RequestBody @Valid UserAuthDTO request) {
+        return JwtDTO.of(service.signUp(request));
     }
 
     @Operation(summary = "Авторизация пользователя")
     @SecurityRequirements
     @PostMapping("/login")
-    public String signIn(@RequestBody @Valid UserAuthDTO request) {
-        return service.signIn(request);
+    public JwtDTO signIn(@RequestBody @Valid UserAuthDTO request) {
+        return JwtDTO.of(service.signIn(request));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

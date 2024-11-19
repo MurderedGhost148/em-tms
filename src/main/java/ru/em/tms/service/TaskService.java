@@ -1,6 +1,5 @@
 package ru.em.tms.service;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +10,6 @@ import ru.em.tms.lib.filter.db.TaskFilter;
 import ru.em.tms.lib.mapper.TaskMapper;
 import ru.em.tms.lib.specification.TaskSpecifications;
 import ru.em.tms.model.db.Task;
-import ru.em.tms.model.db.User;
 import ru.em.tms.model.dto.PageableResponse;
 import ru.em.tms.model.dto.task.TaskCreateDTO;
 import ru.em.tms.model.dto.task.TaskGetDTO;
@@ -30,18 +28,18 @@ public class TaskService {
     private final TaskRepo repo;
     private final UserRepo userRepo;
     private final TaskMapper mapper;
-    private User author;
-
-    @PostConstruct
-    public void init() {
-        author = userRepo.findAll().stream().filter(role -> role.getRole().equals(Role.ADMIN)).findFirst().orElseThrow();
-    }
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public PageableResponse<TaskGetDTO> getAll(Pageable pageable, TaskFilter filter) {
         Specification<Task> spec = Specification.where(null);
         if (filter.getAuthorId() != null) spec = spec.and(TaskSpecifications.byAuthorId(filter.getAuthorId()));
-        if (filter.getExecutorId() != null) spec = spec.and(TaskSpecifications.byExecutorId(filter.getExecutorId()));
+
+        var user = userService.getCurrentUser();
+        if (user.getAuthorities().stream().noneMatch(role -> role.getAuthority().equals(Role.ADMIN.name())))
+            spec = spec.and(TaskSpecifications.byExecutorId(user.getId()));
+        else if (filter.getExecutorId() != null)
+            spec = spec.and(TaskSpecifications.byExecutorId(filter.getExecutorId()));
 
         var page = repo.findAll(spec, pageable);
 
@@ -64,7 +62,7 @@ public class TaskService {
                 .description(dto.getDescription())
                 .status(Status.NEW)
                 .priority(dto.getPriority())
-                .author(author)
+                .author(userService.getCurrentUser())
                 .executor(userRepo.findById(dto.getExecutorId()).orElseThrow(() -> new EntityNotFoundException("Исполнитель не найден")))
                 .build());
 
@@ -74,11 +72,16 @@ public class TaskService {
     public TaskGetDTO update(Long id, TaskUpdateDTO dto) {
         var saved = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Задача не найдена"));
 
-        saved.setTitle(dto.getTitle());
-        saved.setDescription(dto.getDescription());
         saved.setStatus(dto.getStatus());
-        saved.setPriority(dto.getPriority());
-        saved.setExecutor(userRepo.findById(dto.getExecutorId()).orElseThrow(() -> new EntityNotFoundException("Исполнитель не найден")));
+
+        var user = userService.getCurrentUser();
+        if(user.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Role.ADMIN.name())) ||
+                (saved.getExecutor() != null && saved.getExecutor().getId().equals(user.getId()))) {
+            saved.setTitle(dto.getTitle());
+            saved.setDescription(dto.getDescription());
+            saved.setPriority(dto.getPriority());
+            saved.setExecutor(userRepo.findById(dto.getExecutorId()).orElseThrow(() -> new EntityNotFoundException("Исполнитель не найден")));
+        }
 
         return mapper.sourceToDestination(saved);
     }

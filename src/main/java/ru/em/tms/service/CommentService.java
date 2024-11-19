@@ -9,12 +9,10 @@ import ru.em.tms.lib.mapper.CommentMapper;
 import ru.em.tms.model.db.Comment;
 import ru.em.tms.model.db.Task;
 import ru.em.tms.model.dto.PageableResponse;
-import ru.em.tms.model.dto.comment.CommentCreateDTO;
+import ru.em.tms.model.dto.comment.CommentEditDTO;
 import ru.em.tms.model.dto.comment.CommentGetDTO;
-import ru.em.tms.model.dto.comment.CommentUpdateDTO;
 import ru.em.tms.repo.CommentRepo;
 import ru.em.tms.repo.TaskRepo;
-import ru.em.tms.repo.UserRepo;
 
 import java.util.Optional;
 
@@ -27,7 +25,7 @@ import static ru.em.tms.lib.specification.CommentSpecifications.byTask;
 public class CommentService {
     private final CommentRepo repo;
     private final TaskRepo taskRepo;
-    private final UserRepo userRepo;
+    private final UserService userService;
     private final CommentMapper mapper;
 
     @Transactional(readOnly = true)
@@ -48,17 +46,17 @@ public class CommentService {
                 .map(mapper::sourceToDestination);
     }
 
-    public CommentGetDTO create(Long taskId, CommentCreateDTO dto) {
+    public CommentGetDTO create(Long taskId, CommentEditDTO dto) {
         var comment = repo.save(Comment.builder()
                 .task(getTask(taskId))
                 .content(dto.getContent())
-                .author(userRepo.findById(dto.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден")))
+                .author(userService.getCurrentUser())
                 .build());
 
         return mapper.sourceToDestination(comment);
     }
 
-    public CommentGetDTO update(Long taskId, Long id, CommentUpdateDTO dto) {
+    public CommentGetDTO update(Long taskId, Long id, CommentEditDTO dto) {
         var saved = repo.findOne(byTask(getTask(taskId)).and(byId(id))).orElseThrow(() -> new EntityNotFoundException("Комментарий не найден"));
 
         saved.setContent(dto.getContent());

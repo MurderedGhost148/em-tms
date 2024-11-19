@@ -10,10 +10,11 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.em.tms.lib.annotation.PageableDoc;
-import ru.em.tms.lib.filter.TaskFilter;
+import ru.em.tms.lib.filter.db.TaskFilter;
 import ru.em.tms.model.dto.PageableResponse;
 import ru.em.tms.model.dto.task.TaskCreateDTO;
 import ru.em.tms.model.dto.task.TaskGetDTO;
@@ -41,6 +42,7 @@ public class TaskController {
     @Operation(summary = "Получить информацию о задаче", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
     ))
+    @PreAuthorize("isTaskMember(#id) or hasAuthority('ADMIN')")
     public TaskGetDTO getById(@PathVariable Long id) {
         return service.getById(id).orElseThrow(() -> new EntityNotFoundException("Задача не найдена"));
     }
@@ -53,6 +55,7 @@ public class TaskController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = TaskCreateDTO.class)))
     )
+    @PreAuthorize("hasAuthority('ADMIN')")
     public TaskGetDTO create(@RequestBody @Validated TaskCreateDTO taskDTO) {
         return service.create(taskDTO);
     }
@@ -65,6 +68,7 @@ public class TaskController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = TaskUpdateDTO.class)))
     )
+    @PreAuthorize("isTaskMember(#id) or hasAuthority('ADMIN')")
     public TaskGetDTO update(@PathVariable Long id, @RequestBody @Validated TaskUpdateDTO taskDTO) {
         return service.update(id, taskDTO);
     }
@@ -73,6 +77,7 @@ public class TaskController {
     @Operation(summary = "Удалить задачу", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
     ))
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }

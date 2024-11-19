@@ -9,7 +9,7 @@ import ru.em.tms.model.dto.IDTO;
 @Value
 @Jacksonized
 @Builder
-public class CommentUpdateDTO implements IDTO {
+public class CommentEditDTO implements IDTO {
     @NotBlank(message = "Комментарий не может быть пустым")
     String content;
 }

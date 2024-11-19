@@ -3,6 +3,7 @@ package ru.em.tms.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import ru.em.tms.lib.filter.JwtAuthenticationFilter;
+import ru.em.tms.lib.security.TMSMethodSecurityExpressionHandler;
+import ru.em.tms.repo.CommentRepo;
+import ru.em.tms.repo.TaskRepo;
 import ru.em.tms.service.UserService;
 
 import java.util.List;
@@ -69,5 +73,10 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(TaskRepo taskRepo, CommentRepo commentRepo) {
+        return new TMSMethodSecurityExpressionHandler(taskRepo, commentRepo);
     }
 }
