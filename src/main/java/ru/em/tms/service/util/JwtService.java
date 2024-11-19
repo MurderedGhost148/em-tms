@@ -1,4 +1,4 @@
-package ru.em.tms.service;
+package ru.em.tms.service.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

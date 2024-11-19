@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.em.tms.model.dto.user.UserEditDTO;
 import ru.em.tms.model.dto.user.UserAuthDTO;
 import ru.em.tms.model.enums.Role;
+import ru.em.tms.service.util.JwtService;
 
 @Service
 @RequiredArgsConstructor
