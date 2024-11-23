@@ -57,7 +57,8 @@ public class CommentService {
     }
 
     public CommentGetDTO update(Long taskId, Long id, CommentEditDTO dto) {
-        var saved = repo.findOne(byTask(getTask(taskId)).and(byId(id))).orElseThrow(() -> new EntityNotFoundException("Комментарий не найден"));
+        var saved = repo.findOne(byTask(getTask(taskId)).and(byId(id)))
+                .orElseThrow(() -> new EntityNotFoundException("Комментарий не найден"));
 
         saved.setContent(dto.getContent());
 
