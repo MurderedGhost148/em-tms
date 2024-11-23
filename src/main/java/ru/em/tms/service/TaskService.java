@@ -75,8 +75,7 @@ public class TaskService {
         saved.setStatus(dto.getStatus());
 
         var user = userService.getCurrentUser();
-        if(user.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Role.ADMIN.name())) ||
-                (saved.getExecutor() != null && saved.getExecutor().getId().equals(user.getId()))) {
+        if(user.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals(Role.ADMIN.name()))) {
             saved.setTitle(dto.getTitle());
             saved.setDescription(dto.getDescription());
             saved.setPriority(dto.getPriority());
