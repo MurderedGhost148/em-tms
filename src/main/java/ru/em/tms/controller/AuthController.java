@@ -24,7 +24,7 @@ public class AuthController {
     private final AuthService service;
 
     @Operation(summary = "Регистрация пользователя", responses = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK",
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "OK",
                     content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = JwtDTO.class))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Неверный логин или пароль",
                     content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = RestError.class))),
@@ -33,6 +33,7 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Ошибка сервера",
                     content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = RestError.class)))
     })
+    @ResponseStatus(HttpStatus.CREATED)
     @SecurityRequirements
     @PostMapping("/register")
     public JwtDTO signUp(@RequestBody @Valid UserAuthDTO request) {
