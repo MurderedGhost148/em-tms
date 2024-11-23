@@ -3,6 +3,7 @@ package ru.em.tms.model.dto.comment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Value;
 import ru.em.tms.model.dto.IDTO;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "CommentGet")
 @Value
+@Builder
 public class CommentGetDTO implements IDTO {
     @Schema(description = "Идентификатор комментария", example = "1")
     Long id;

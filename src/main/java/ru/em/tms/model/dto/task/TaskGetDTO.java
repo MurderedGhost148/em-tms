@@ -3,6 +3,7 @@ package ru.em.tms.model.dto.task;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Value;
 import ru.em.tms.model.dto.IDTO;
 import ru.em.tms.model.enums.task.Priority;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "TaskGet")
 @Value
+@Builder
 public class TaskGetDTO implements IDTO {
     @Schema(description = "Идентификатор задачи", example = "1")
     Long id;
