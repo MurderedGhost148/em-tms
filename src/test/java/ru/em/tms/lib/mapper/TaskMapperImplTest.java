@@ -50,4 +50,25 @@ class TaskMapperImplTest {
 
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    void sourceToDestination_whenRelationsIsNull_returnsDTO() {
+        var task = Task.builder()
+                .id(1L).title("test")
+                .build();
+        var expected = TaskGetDTO.builder()
+                .id(task.getId()).title(task.getTitle())
+                .build();
+
+        var actual = taskMapperImpl.sourceToDestination(task);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void sourceToDestination_whenNull_returnsNull() {
+        var actual = taskMapperImpl.sourceToDestination(null);
+
+        Assertions.assertNull(actual);
+    }
 }

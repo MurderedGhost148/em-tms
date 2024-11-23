@@ -28,4 +28,11 @@ class UserMapperImplTest {
 
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    void sourceToDestination_whenNull_returnsNull() {
+        var actual = userMapperImpl.sourceToDestination(null);
+
+        Assertions.assertNull(actual);
+    }
 }

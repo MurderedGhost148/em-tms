@@ -49,4 +49,25 @@ class CommentMapperImplTest {
 
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    void sourceToDestination_whenRelationsIsNull_returnsDTO() {
+        var comment = Comment.builder()
+                .id(1L)
+                .build();
+        var expected = CommentGetDTO.builder()
+                .id(comment.getId())
+                .build();
+
+        var actual = commentMapperImpl.sourceToDestination(comment);
+
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void sourceToDestination_whenNull_returnsNull() {
+        var actual = commentMapperImpl.sourceToDestination(null);
+
+        Assertions.assertNull(actual);
+    }
 }

@@ -102,7 +102,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void getAll_whenFoundByFilterParams_returnsAll() {
+    void getAll_whenFoundByFilterAuthor_returnsAll() {
         var authorId = 1;
         var pageable = PageRequest.of(0, 10);
         var tasks = new LinkedList<Task>(){{
@@ -131,6 +131,78 @@ class TaskServiceTest {
                 () -> Assertions.assertThat(pageActual.getResult().size()).isEqualTo(tasksExcepted.size()),
                 () -> org.junit.jupiter.api.Assertions.assertTrue(pageActual.getResult().stream()
                         .anyMatch(t -> Objects.equals(authorId, t.getAuthorId())))
+        );
+    }
+
+    @Test
+    void getAll_whenIsUserRole_returnsUserTasks() {
+        var authorId = 1;
+        var user = User.builder().id(3).email("test2@test.ru").role(Role.USER).build();
+        var pageable = PageRequest.of(0, 10);
+        var tasks = new LinkedList<Task>(){{
+            var author = User.builder().id(authorId).build();
+
+            for(int i = 0; i < 9; i++) add(Task.builder().executor(user).author(author).build());
+
+            author = User.builder().id(2).build();
+            add(Task.builder().executor(author).author(author).build());
+        }};
+        var tasksExcepted = tasks.stream().filter(t -> Objects.equals(t.getExecutor().getId(), user.getId())).toList();
+        var pageExcepted = new PageImpl<>(tasksExcepted, pageable, tasksExcepted.size());
+
+        when(userService.getCurrentUser()).thenReturn(user);
+        when(repo.findAll(any(Specification.class), eq(pageable))).thenReturn(pageExcepted);
+        when(mapper.sourceToDestination(any())).thenAnswer(invocation -> {
+            Task task = invocation.getArgument(0);
+            return TaskGetDTO.builder().executorId(task.getExecutor().getId())
+                    .authorId(task.getAuthor().getId()).build();
+        });
+
+        var pageActual = service.getAll(pageable, new TaskFilter(authorId, null));
+
+        assertAll(
+                () -> Assertions.assertThat(pageActual.getTotalPages()).isEqualTo(pageExcepted.getTotalPages()),
+                () -> Assertions.assertThat(pageActual.getPage()).isEqualTo(pageExcepted.getPageable().getPageNumber()),
+                () -> Assertions.assertThat(pageActual.getSize()).isEqualTo(pageExcepted.getPageable().getPageSize()),
+                () -> Assertions.assertThat(pageActual.getResult().size()).isEqualTo(tasksExcepted.size()),
+                () -> org.junit.jupiter.api.Assertions.assertTrue(pageActual.getResult().stream()
+                        .anyMatch(t -> Objects.equals(authorId, t.getAuthorId()) &&
+                                Objects.equals(user.getId(), t.getExecutorId())))
+        );
+    }
+
+    @Test
+    void getAll_whenFoundByFilterExecutor_returnsAll() {
+        var executorId = 1;
+        var user = User.builder().id(executorId).email("test2@test.ru").role(Role.USER).build();
+        var pageable = PageRequest.of(0, 10);
+        var tasks = new LinkedList<Task>(){{
+            var author = User.builder().id(3).build();
+
+            for(int i = 0; i < 9; i++) add(Task.builder().executor(author).author(author).build());
+
+            author = User.builder().id(2).build();
+            add(Task.builder().executor(user).author(author).build());
+        }};
+        var tasksExcepted = tasks.stream().filter(t -> Objects.equals(t.getExecutor().getId(), executorId)).toList();
+        var pageExcepted = new PageImpl<>(tasksExcepted, pageable, tasksExcepted.size());
+
+        when(repo.findAll(any(Specification.class), eq(pageable))).thenReturn(pageExcepted);
+        when(mapper.sourceToDestination(any())).thenAnswer(invocation -> {
+            Task task = invocation.getArgument(0);
+            return TaskGetDTO.builder().executorId(task.getExecutor().getId())
+                    .authorId(task.getAuthor().getId()).build();
+        });
+
+        var pageActual = service.getAll(pageable, new TaskFilter(null, executorId));
+
+        assertAll(
+                () -> Assertions.assertThat(pageActual.getTotalPages()).isEqualTo(pageExcepted.getTotalPages()),
+                () -> Assertions.assertThat(pageActual.getPage()).isEqualTo(pageExcepted.getPageable().getPageNumber()),
+                () -> Assertions.assertThat(pageActual.getSize()).isEqualTo(pageExcepted.getPageable().getPageSize()),
+                () -> Assertions.assertThat(pageActual.getResult().size()).isEqualTo(tasksExcepted.size()),
+                () -> org.junit.jupiter.api.Assertions.assertTrue(pageActual.getResult().stream()
+                        .anyMatch(t -> Objects.equals(executorId, t.getExecutorId())))
         );
     }
 
@@ -286,6 +358,21 @@ class TaskServiceTest {
 
         Assertions.assertThat(actual).isEqualTo(expected);
         verify(mapper).sourceToDestination(any());
+    }
+
+    @Test
+    void update_whenExecutorNotFound_throwsException() {
+        var taskId = 1L;
+        var executorId = 1;
+        var task = Task.builder().id(taskId).title("title1").executor(User.builder().id(executorId).build()).build();
+        var taskUpdateDTO = TaskUpdateDTO.builder().title("title2").executorId(executorId).build();
+
+        when(repo.findById(taskId)).thenReturn(Optional.of(task));
+        when(userRepo.findById(1)).thenAnswer(invocation -> Optional.empty());
+
+        Assertions.assertThatExceptionOfType(EntityNotFoundException.class).isThrownBy(() -> service.update(taskId, taskUpdateDTO));
+
+        verify(mapper, never()).sourceToDestination(any());
     }
 
     @Test
