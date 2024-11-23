@@ -5,17 +5,17 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class AuditEntity<K> implements IEntity<K> {
+public abstract class AuditEntity<K extends Serializable> implements IEntity<K> {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     @ManyToOne
