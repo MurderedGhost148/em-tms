@@ -1,4 +1,4 @@
-create table users
+create table if not exists users
 (
     id       int auto_increment
         primary key,
@@ -9,7 +9,7 @@ create table users
         unique (email)
 );
 
-create table tasks
+create table if not exists tasks
 (
     id          bigint auto_increment
         primary key,
@@ -29,7 +29,7 @@ create table tasks
             on update cascade on delete set null
 );
 
-create table comments
+create table if not exists comments
 (
     id         bigint auto_increment
         primary key,
