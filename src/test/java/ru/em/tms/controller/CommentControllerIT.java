@@ -3,10 +3,7 @@ package ru.em.tms.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -415,5 +412,14 @@ public class CommentControllerIT {
                 .andExpect(status().is(HttpStatus.FORBIDDEN.value()));
 
         Assertions.assertNotNull(service.getById(task.getId(), created.getId()).orElse(null));
+    }
+
+    @AfterAll
+    void tearDown() {
+        var taskRepo = context.getBean(TaskRepo.class);
+        var userRepo = context.getBean(UserRepo.class);
+
+        taskRepo.deleteAll();
+        userRepo.deleteAll();
     }
 }
