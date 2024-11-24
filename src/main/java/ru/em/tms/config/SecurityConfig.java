@@ -23,6 +23,7 @@ import ru.em.tms.lib.filter.JwtAuthenticationFilter;
 import ru.em.tms.lib.security.TMSMethodSecurityExpressionHandler;
 import ru.em.tms.repo.CommentRepo;
 import ru.em.tms.repo.TaskRepo;
+import ru.em.tms.repo.UserRepo;
 import ru.em.tms.service.UserService;
 
 import java.util.List;
@@ -81,7 +82,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(TaskRepo taskRepo, CommentRepo commentRepo) {
-        return new TMSMethodSecurityExpressionHandler(taskRepo, commentRepo);
+    public static MethodSecurityExpressionHandler methodSecurityExpressionHandler(TaskRepo taskRepo,
+                                                                                  CommentRepo commentRepo,
+                                                                                  UserRepo userRepo) {
+        return new TMSMethodSecurityExpressionHandler(taskRepo, commentRepo, userRepo);
     }
 }

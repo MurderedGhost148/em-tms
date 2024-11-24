@@ -4,25 +4,30 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import ru.em.tms.model.db.User;
 import ru.em.tms.repo.CommentRepo;
 import ru.em.tms.repo.TaskRepo;
+import ru.em.tms.repo.UserRepo;
 
 import java.util.Objects;
 
 public class TMSMethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
     private final TaskRepo taskRepo;
     private final CommentRepo commentRepo;
+    private final UserRepo userRepo;
 
-    public TMSMethodSecurityExpressionRoot(TaskRepo taskRepo, CommentRepo commentRepo, Authentication authentication) {
+    public TMSMethodSecurityExpressionRoot(TaskRepo taskRepo, CommentRepo commentRepo, UserRepo userRepo, Authentication authentication) {
         super(authentication);
 
         this.taskRepo = taskRepo;
         this.commentRepo = commentRepo;
+        this.userRepo = userRepo;
     }
 
     public boolean isTaskMember(Long taskId) {
-        final User user = ((User) this.getPrincipal());
+        final User user = userRepo.findByEmail(((UserDetails) this.getPrincipal()).getUsername())
+                .orElseThrow(() -> new AccessDeniedException("Отказано в доступе"));
 
         try {
             taskRepo.findById(taskId).ifPresentOrElse(t -> {
@@ -41,7 +46,8 @@ public class TMSMethodSecurityExpressionRoot extends SecurityExpressionRoot impl
     }
 
     public boolean isCommentAuthor(Long commentId) {
-        final User user = ((User) this.getPrincipal());
+        final User user = userRepo.findByEmail(((UserDetails) this.getPrincipal()).getUsername())
+                .orElseThrow(() -> new AccessDeniedException("Отказано в доступе"));
 
         try {
             commentRepo.findById(commentId).ifPresentOrElse(t -> {

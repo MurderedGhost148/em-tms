@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.Authentication;
 import ru.em.tms.repo.CommentRepo;
 import ru.em.tms.repo.TaskRepo;
+import ru.em.tms.repo.UserRepo;
 
 import java.util.function.Supplier;
 
@@ -18,11 +19,12 @@ public class TMSMethodSecurityExpressionHandler extends DefaultMethodSecurityExp
     private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private final TaskRepo taskRepo;
     private final CommentRepo commentRepo;
+    private final UserRepo userRepo;
 
     @Override
     protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
             Authentication authentication, MethodInvocation invocation) {
-        TMSMethodSecurityExpressionRoot root = new TMSMethodSecurityExpressionRoot(taskRepo, commentRepo, authentication);
+        TMSMethodSecurityExpressionRoot root = new TMSMethodSecurityExpressionRoot(taskRepo, commentRepo, userRepo, authentication);
         root.setPermissionEvaluator(getPermissionEvaluator());
         root.setTrustResolver(this.trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());
