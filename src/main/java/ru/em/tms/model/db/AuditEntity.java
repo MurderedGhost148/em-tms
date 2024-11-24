@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @AllArgsConstructor
@@ -23,11 +24,11 @@ public abstract class AuditEntity<K extends Serializable> implements IEntity<K> 
 
     @PrePersist
     public void prePersist() {
-        createdAt = updatedAt = LocalDateTime.now();
+        createdAt = updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 }
