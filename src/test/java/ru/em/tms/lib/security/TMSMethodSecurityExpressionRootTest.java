@@ -15,6 +15,7 @@ import ru.em.tms.model.db.User;
 import ru.em.tms.model.enums.Role;
 import ru.em.tms.repo.CommentRepo;
 import ru.em.tms.repo.TaskRepo;
+import ru.em.tms.repo.UserRepo;
 
 import java.util.Optional;
 
@@ -28,6 +29,8 @@ class TMSMethodSecurityExpressionRootTest {
     @Mock
     private CommentRepo commentRepo;
     @Mock
+    private UserRepo userRepo;
+    @Mock
     private Authentication authentication;
     @InjectMocks
     private TMSMethodSecurityExpressionRoot root;
@@ -35,14 +38,15 @@ class TMSMethodSecurityExpressionRootTest {
     @Test
     void isTaskMember_whenUserIsExecutor_returnsTrue() {
         var taskId = 1L;
+        var currentUser = User.builder().id(1).email("admin@test.ru").role(Role.USER).build();
         var task = Task.builder().id(taskId).executor(User.builder().id(3).build())
-                .author(User.builder().id(1).build()).build();
-        var currentUser = User.builder().id(1).role(Role.USER).build();
+                .author(currentUser).build();
 
         var securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getPrincipal()).thenReturn(currentUser);
+        when(userRepo.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         when(root.getPrincipal()).thenReturn(currentUser);
         when(taskRepo.findById(taskId)).thenReturn(Optional.ofNullable(task));
 
@@ -54,14 +58,15 @@ class TMSMethodSecurityExpressionRootTest {
     @Test
     void isTaskMember_whenUserIsAuthor_returnsTrue() {
         var taskId = 1L;
-        var task = Task.builder().id(taskId).executor(User.builder().id(3).build())
+        var currentUser = User.builder().id(3).email("admin@test.ru").role(Role.USER).build();
+        var task = Task.builder().id(taskId).executor(currentUser)
                 .author(User.builder().id(1).build()).build();
-        var currentUser = User.builder().id(3).role(Role.USER).build();
 
         var securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getPrincipal()).thenReturn(currentUser);
+        when(userRepo.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         when(root.getPrincipal()).thenReturn(currentUser);
         when(taskRepo.findById(taskId)).thenReturn(Optional.ofNullable(task));
 
@@ -73,14 +78,15 @@ class TMSMethodSecurityExpressionRootTest {
     @Test
     void isTaskMember_whenNotTaskMember_returnsFalse() {
         var taskId = 1L;
+        var currentUser = User.builder().id(4).email("admin@test.ru").role(Role.USER).build();
         var task = Task.builder().id(taskId).executor(User.builder().id(3).build())
                 .author(User.builder().id(1).build()).build();
-        var currentUser = User.builder().id(4).role(Role.USER).build();
 
         var securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getPrincipal()).thenReturn(currentUser);
+        when(userRepo.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         when(root.getPrincipal()).thenReturn(currentUser);
         when(taskRepo.findById(taskId)).thenReturn(Optional.ofNullable(task));
 
@@ -92,13 +98,15 @@ class TMSMethodSecurityExpressionRootTest {
     @Test
     void isCommentAuthor_whenUserIsAuthor_returnsTrue() {
         var commentId = 1L;
-        var comment = Comment.builder().id(commentId).task(Task.builder().id(1L).build()).author(User.builder().id(1).build()).build();
-        var currentUser = User.builder().id(1).role(Role.USER).build();
+        var currentUser = User.builder().id(1).email("admin@test.ru").role(Role.USER).build();
+        var comment = Comment.builder().id(commentId).task(Task.builder().id(1L).build())
+                .author(User.builder().id(1).build()).build();
 
         var securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getPrincipal()).thenReturn(currentUser);
+        when(userRepo.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         when(root.getPrincipal()).thenReturn(currentUser);
         when(commentRepo.findById(commentId)).thenReturn(Optional.ofNullable(comment));
 
@@ -110,13 +118,15 @@ class TMSMethodSecurityExpressionRootTest {
     @Test
     void isCommentAuthor_whenNotCommentAuthor_returnsFalse() {
         var commentId = 1L;
-        var comment = Comment.builder().id(commentId).task(Task.builder().id(1L).build()).author(User.builder().id(2).build()).build();
-        var currentUser = User.builder().id(1).role(Role.USER).build();
+        var currentUser = User.builder().id(1).email("admin@test.ru").role(Role.USER).build();
+        var comment = Comment.builder().id(commentId).task(Task.builder().id(1L).build())
+                .author(User.builder().id(2).build()).build();
 
         var securityContext = mock(SecurityContext.class);
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getPrincipal()).thenReturn(currentUser);
+        when(userRepo.findByEmail(currentUser.getEmail())).thenReturn(Optional.of(currentUser));
         when(root.getPrincipal()).thenReturn(currentUser);
         when(commentRepo.findById(commentId)).thenReturn(Optional.ofNullable(comment));
 
